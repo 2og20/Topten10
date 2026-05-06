@@ -1,0 +1,415 @@
+💙
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TOPTEN10</title>
+    
+    <!-- إعدادات الشاشة الكاملة للآيفون -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f1f5f9;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+        }
+        .safe-top { padding-top: env(safe-area-inset-top); }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: slideUp 0.3s ease-out; }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .neo-card {
+            background: #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-active { color: #1e40af; position: relative; }
+        .nav-active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            width: 5px;
+            height: 5px;
+            background: #1e40af;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="safe-top">
+
+    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col">
+        
+        <!-- Header -->
+        <header class="p-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-black text-blue-900 tracking-tighter">TOPTEN10</h1>
+                <p id="header-date" class="text-[10px] font-bold text-slate-400 mt-1 uppercase"></p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="switchTab('settings')" class="w-10 h-10 neo-card flex items-center justify-center">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Main Content Scroll Area -->
+        <main class="flex-1 overflow-y-auto px-4 pb-32">
+            
+            <!-- Dashboard Tab -->
+            <div id="tab-dash" class="tab-content active space-y-6">
+                <div class="bg-blue-900 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-xs opacity-70 font-bold">إجمالي مبيعات اليوم</p>
+                        <h2 id="total-sales" class="text-4xl font-black mt-1">0</h2>
+                        <div class="grid grid-cols-2 gap-4 mt-8">
+                            <div class="bg-white/10 p-4 rounded-3xl backdrop-blur-md">
+                                <p class="text-[9px] opacity-60">صافي النقد</p>
+                                <p id="cash-net" class="text-lg font-bold">0</p>
+                            </div>
+                            <div class="bg-white/10 p-4 rounded-3xl backdrop-blur-md">
+                                <p class="text-[9px] opacity-60">المحافظ</p>
+                                <p id="wallet-net" class="text-lg font-bold">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full"></div>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="font-black text-slate-800 px-2 flex justify-between items-center">
+                        <span>آخر العمليات</span>
+                        <span class="text-[10px] text-blue-500 underline" onclick="switchTab('settings')">عرض الكل</span>
+                    </h3>
+                    <div id="recent-logs" class="neo-card divide-y divide-slate-50 overflow-hidden">
+                        <!-- Logs here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- POS Tab -->
+            <div id="tab-pos" class="tab-content space-y-4">
+                <div class="neo-card p-6 space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 mr-2 uppercase">المنتج</label>
+                        <select id="pos-select" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-700 outline-none focus:ring-2 ring-blue-500"></select>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 mr-2 uppercase">الكمية</label>
+                            <input type="number" id="pos-qty" value="1" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-black text-center text-blue-900 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 mr-2 uppercase">خصم</label>
+                            <input type="number" id="pos-disc" value="0" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-black text-center text-red-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 p-1 bg-slate-100 rounded-2xl">
+                        <button onclick="setPayMethod('cash')" id="pay-cash" class="flex-1 py-3 rounded-xl font-bold transition-all bg-white shadow-sm text-blue-900">كاش</button>
+                        <button onclick="setPayMethod('wallet')" id="pay-wallet" class="flex-1 py-3 rounded-xl font-bold transition-all text-slate-400">محفظة</button>
+                    </div>
+                    
+                    <select id="pos-wallet-sel" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold hidden outline-none"></select>
+
+                    <button onclick="processOrder()" class="w-full py-5 bg-blue-900 text-white rounded-[1.8rem] font-black text-lg shadow-lg active:scale-95 transition-transform mt-4">تأكيد المبيعات</button>
+                </div>
+            </div>
+
+            <!-- Stock Tab -->
+            <div id="tab-stock" class="tab-content space-y-4">
+                <div class="neo-card p-6 space-y-3">
+                    <input id="st-name" type="text" placeholder="اسم المنتج الجديد" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none">
+                    <div class="grid grid-cols-3 gap-2">
+                        <input id="st-qty" type="number" placeholder="الكمية" class="p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none">
+                        <input id="st-cost" type="number" placeholder="تكلفة" class="p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none">
+                        <input id="st-price" type="number" placeholder="بيع" class="p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none">
+                    </div>
+                    <button onclick="addStockItem()" class="w-full py-4 bg-blue-900 text-white rounded-2xl font-black">إضافة للمخزون</button>
+                </div>
+                <div id="stock-list" class="space-y-2"></div>
+            </div>
+
+            <!-- Expenses Tab -->
+            <div id="tab-exp" class="tab-content space-y-4">
+                <div class="neo-card p-6 space-y-4">
+                    <input id="ex-title" type="text" placeholder="بيان المصروف" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none">
+                    <input id="ex-amount" type="number" placeholder="المبلغ" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-black text-center text-3xl text-red-500 outline-none">
+                    <button onclick="addExpenseItem()" class="w-full py-4 bg-red-500 text-white rounded-2xl font-black">تسجيل مصروف</button>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="tab-content space-y-4">
+                <div class="neo-card p-6">
+                    <h4 class="font-black mb-4">المحافظ الإلكترونية</h4>
+                    <div class="flex gap-2">
+                        <input id="new-w-name" type="text" placeholder="اسم المحفظة" class="flex-1 p-3 bg-slate-50 rounded-xl border-none text-sm">
+                        <button onclick="addWalletType()" class="px-6 bg-blue-900 text-white rounded-xl font-bold">إضافة</button>
+                    </div>
+                    <div id="wallets-list" class="mt-4 space-y-2"></div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 pt-4">
+                    <button onclick="exportData()" class="p-4 neo-card font-bold text-xs">نسخة احتياطية 📥</button>
+                    <button onclick="closeDayShift()" class="p-4 bg-emerald-500 text-white rounded-3xl font-black text-xs">إقفال الوردية</button>
+                </div>
+                <button onclick="fullSystemReset()" class="w-full p-4 text-slate-300 text-[10px] font-bold">تصفير النظام بالكامل</button>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 h-24 bg-white/80 backdrop-blur-xl border-t border-slate-100 flex items-center justify-around px-6 safe-bottom z-50">
+            <button onclick="switchTab('dash')" class="nav-item nav-active flex flex-col items-center">
+                <span class="text-xl">📊</span><span class="text-[9px] font-black mt-1">الرئيسية</span>
+            </button>
+            <button onclick="switchTab('pos')" class="nav-item flex flex-col items-center text-slate-400">
+                <span class="text-xl">💰</span><span class="text-[9px] font-black mt-1">المبيعات</span>
+            </button>
+            <button onclick="switchTab('stock')" class="nav-item flex flex-col items-center text-slate-400">
+                <span class="text-xl">📦</span><span class="text-[9px] font-black mt-1">المخزن</span>
+            </button>
+            <button onclick="switchTab('exp')" class="nav-item flex flex-col items-center text-slate-400">
+                <span class="text-xl">📉</span><span class="text-[9px] font-black mt-1">المصاريف</span>
+            </button>
+        </nav>
+
+        <!-- Modal Invoice -->
+        <div id="inv-modal" class="fixed inset-0 bg-slate-900/90 z-[100] hidden flex items-center justify-center p-6">
+            <div class="w-full max-w-xs space-y-4">
+                <div id="inv-paper" class="bg-white p-8 rounded-[2.5rem] shadow-2xl">
+                    <div class="text-center border-b-2 border-dashed border-slate-100 pb-4 mb-4">
+                        <h2 class="text-2xl font-black text-blue-900 uppercase tracking-tighter">TOPTEN10</h2>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase mt-1">Digital Receipt</p>
+                    </div>
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase">
+                            <span>الرقم: <span id="v-id">0000</span></span>
+                            <span id="v-date">--/--</span>
+                        </div>
+                        <div class="py-2">
+                            <div class="flex justify-between items-center mb-1">
+                                <span id="v-name" class="text-lg font-black text-slate-800"></span>
+                                <span id="v-qty" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black"></span>
+                            </div>
+                            <p id="v-method" class="text-[10px] text-slate-400 font-bold uppercase"></p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                            <span class="text-blue-900 font-black">الإجمالي</span>
+                            <span id="v-total" class="text-2xl font-black text-blue-900"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="downloadInvoicePDF()" class="flex-1 py-4 bg-white/10 text-white rounded-2xl font-bold backdrop-blur-md">حفظ PDF</button>
+                    <button onclick="closeInvoiceModal()" class="flex-1 py-4 bg-white text-blue-900 rounded-2xl font-bold">إغلاق</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Data Structure
+        let state = JSON.parse(localStorage.getItem('topten_pro_db')) || {
+            stock: [], sales: [], expenses: [], wallets: ['كريمي', 'بسيوني', 'ام فلوس'], history: []
+        };
+        let currentMethod = 'cash';
+
+        const sync = () => {
+            localStorage.setItem('topten_pro_db', JSON.stringify(state));
+            render();
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active', 'text-blue-800'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.add('text-slate-400'));
+            event.currentTarget.classList.add('nav-active');
+            event.currentTarget.classList.remove('text-slate-400');
+        }
+
+        function setPayMethod(m) {
+            currentMethod = m;
+            document.getElementById('pay-cash').className = m === 'cash' ? 'flex-1 py-3 rounded-xl font-bold bg-white shadow-sm text-blue-900' : 'flex-1 py-3 rounded-xl font-bold text-slate-400';
+            document.getElementById('pay-wallet').className = m === 'wallet' ? 'flex-1 py-3 rounded-xl font-bold bg-white shadow-sm text-blue-900' : 'flex-1 py-3 rounded-xl font-bold text-slate-400';
+            document.getElementById('pos-wallet-sel').classList.toggle('hidden', m === 'cash');
+        }
+
+        function addStockItem() {
+            const name = document.getElementById('st-name').value;
+            const qty = parseInt(document.getElementById('st-qty').value) || 0;
+            const cost = parseFloat(document.getElementById('st-cost').value) || 0;
+            const price = parseFloat(document.getElementById('st-price').value) || 0;
+
+            if(name && price) {
+                state.stock.push({ id: Date.now(), name, qty, cost, price });
+                sync();
+                document.querySelectorAll('#tab-stock input').forEach(i => i.value = '');
+            }
+        }
+
+        function processOrder() {
+            const itemId = document.getElementById('pos-select').value;
+            const qty = parseInt(document.getElementById('pos-qty').value) || 1;
+            const disc = parseFloat(document.getElementById('pos-disc').value) || 0;
+            const item = state.stock.find(i => i.id == itemId);
+
+            if(!item) return alert("اختر المنتج أولاً");
+            if(item.qty < qty) return alert("الكمية غير متوفرة بالمخزن!");
+
+            const total = (item.price * qty) - disc;
+            const sale = {
+                id: Math.floor(1000 + Math.random() * 8999),
+                name: item.name,
+                qty,
+                total,
+                method: currentMethod === 'wallet' ? document.getElementById('pos-wallet-sel').value : 'نقدي',
+                date: new Date().toISOString()
+            };
+
+            item.qty -= qty;
+            state.sales.push(sale);
+            sync();
+
+            // Show Receipt
+            document.getElementById('v-id').innerText = sale.id;
+            document.getElementById('v-date').innerText = new Date(sale.date).toLocaleDateString('ar-YE');
+            document.getElementById('v-name').innerText = sale.name;
+            document.getElementById('v-qty').innerText = "الكمية: " + sale.qty;
+            document.getElementById('v-method').innerText = "طريقة الدفع: " + sale.method;
+            document.getElementById('v-total').innerText = total.toLocaleString() + " ر.ي";
+            document.getElementById('inv-modal').classList.remove('hidden');
+        }
+
+        function addExpenseItem() {
+            const title = document.getElementById('ex-title').value;
+            const amount = parseFloat(document.getElementById('ex-amount').value) || 0;
+            if(title && amount) {
+                state.expenses.push({ title, amount, date: new Date().toISOString() });
+                sync();
+                document.getElementById('ex-title').value = '';
+                document.getElementById('ex-amount').value = '';
+            }
+        }
+
+        function render() {
+            // Update Date Header
+            document.getElementById('header-date').innerText = new Date().toLocaleDateString('ar-YE', { weekday: 'long', day: 'numeric', month: 'long' });
+
+            // POS Selects
+            document.getElementById('pos-select').innerHTML = '<option value="">-- اختر المنتج --</option>' + 
+                state.stock.map(i => `<option value="${i.id}">${i.name} (${i.qty})</option>`).join('');
+            document.getElementById('pos-wallet-sel').innerHTML = state.wallets.map(w => `<option value="${w}">${w}</option>`).join('');
+
+            // Stock List
+            document.getElementById('stock-list').innerHTML = state.stock.map(i => `
+                <div class="neo-card p-4 flex justify-between items-center">
+                    <div>
+                        <p class="font-black text-slate-800">${i.name}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">الكمية: ${i.qty}</p>
+                    </div>
+                    <p class="text-blue-900 font-black">${i.price.toLocaleString()}</p>
+                </div>
+            `).join('');
+
+            // Logs
+            const logs = [...state.sales.map(s => ({...s, type: 'sale'})), ...state.expenses.map(e => ({...e, type: 'exp', name: e.title, total: -e.amount}))];
+            document.getElementById('recent-logs').innerHTML = logs.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10).map(l => `
+                <div class="p-4 flex justify-between items-center">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-black ${l.type === 'exp' ? 'text-red-500' : 'text-slate-800'}">${l.name}</span>
+                        <span class="text-[8px] text-slate-400 font-bold uppercase">${new Date(l.date).toLocaleTimeString('ar-YE', {hour:'2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <span class="text-xs font-black ${l.type === 'sale' ? 'text-blue-600' : ''}">${l.total.toLocaleString()}</span>
+                </div>
+            `).join('');
+
+            // Dashboard Totals
+            const totalS = state.sales.reduce((a, b) => a + b.total, 0);
+            const totalE = state.expenses.reduce((a, b) => a + b.amount, 0);
+            const walletS = state.sales.filter(s => s.method !== 'نقدي').reduce((a, b) => a + b.total, 0);
+            const cashS = state.sales.filter(s => s.method === 'نقدي').reduce((a, b) => a + b.total, 0);
+
+            document.getElementById('total-sales').innerText = totalS.toLocaleString();
+            document.getElementById('cash-net').innerText = (cashS - totalE).toLocaleString();
+            document.getElementById('wallet-net').innerText = walletS.toLocaleString();
+
+            // Wallets list
+            document.getElementById('wallets-list').innerHTML = state.wallets.map(w => `
+                <div class="bg-slate-50 p-3 rounded-xl flex justify-between items-center text-xs font-bold">
+                    <span>${w}</span>
+                    <button onclick="removeWallet('${w}')" class="text-red-400 text-[10px]">حذف</button>
+                </div>
+            `).join('');
+        }
+
+        function removeWallet(w) {
+            state.wallets = state.wallets.filter(item => item !== w);
+            sync();
+        }
+
+        function addWalletType() {
+            const w = document.getElementById('new-w-name').value;
+            if(w && !state.wallets.includes(w)) {
+                state.wallets.push(w);
+                sync();
+                document.getElementById('new-w-name').value = '';
+            }
+        }
+
+        function downloadInvoicePDF() {
+            const element = document.getElementById('inv-paper');
+            html2pdf().from(element).save('TOPTEN_Invoice.pdf');
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('inv-modal').classList.add('hidden');
+        }
+
+        function closeDayShift() {
+            if(confirm("هل أنت متأكد من إقفال الوردية؟ سيتم إفراغ سجل اليوم.")) {
+                state.sales = [];
+                state.expenses = [];
+                sync();
+            }
+        }
+
+        function fullSystemReset() {
+            if(confirm("تحذير نهائي: سيتم مسح كافة البيانات والمخزون!")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(state)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `TOPTEN_Backup_${new Date().toLocaleDateString()}.json`;
+            a.click();
+        }
+
+        window.onload = render;
+    </script>
+</body>
+</html>
